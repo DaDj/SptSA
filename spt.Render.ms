@@ -5,7 +5,6 @@ struct SPT_Render
     relevantobjs = #(),
     function GetObjects = 
     (
-        
         relevantobjs = #()
         for obj in  objects where obj.isHiddenInVpt == false do 
         (
@@ -27,7 +26,7 @@ struct SPT_Render
     (
         Node =  callbacks.notificationParam() 
         id = findItem relevantobjs Node
-        if id < 1 and (classof Node) == GTA_PathNode do 
+        if id < 1 and (classof Node) == GTA_VehiclePathNode do 
         (
            append relevantobjs Node
         )
@@ -41,30 +40,35 @@ struct SPT_Render
             local linkedObjs = #();
             gw.setColor #line green
 			mynewlist = #()
-            VpWidth = (gw.getWinSizeX())
-            VpHeight = (gw.getWinSizeY())
+            --VpWidth = (gw.getWinSizeX())
+            --VpHeight = (gw.getWinSizeY())
             iconnects = 0;
           
-            for iObj = 1 to relevantobjs.count  do 
+            for obj in relevantobjs  do 
             (
                 if iconnects < iMaxConnects do 
                 (
-                    obj = relevantobjs[iObj]
                     gw.setTransform (Matrix3 1)
                     posi = gw.TransPoint obj.pos
-         
-                    if posi.x < VpWidth  and  posi.x > 0 and posi.y < VpHeight and posi.y > 0 then 
+                    if posi.x < (gw.getWinSizeX())  and  posi.x > 0 and posi.y < (gw.getWinSizeY()) and posi.y > 0 then 
                     (
                         iconnects = iconnects +1 
                         --append mynewlist obj
                         MyObj = obj
-                        for LinkedObj in MyObj.LinkList do 
+                        for LinkInfo in MyObj.LinkList do 
                         ( 
-                            if (findItem linkedObjs LinkedObj) == false and isValidNode LinkedObj do 
+                            if (findItem linkedObjs LinkInfo.Node) == false and isValidNode LinkInfo.Node do 
                             (
                                 thepos  = gw.wTransPoint MyObj.pos
-                                mpos = gw.wTransPoint LinkedObj.pos
-                                gw.wPolyline #(thepos,mpos) true color:yellow  
+                                mpos = gw.wTransPoint LinkInfo.Node.pos
+                                  --gw.setColor #line green
+                                  if LinkInfo.isRoadcross == true then 
+                                     gw.wPolyline #(thepos,mpos) true rgb:#(yellow,yellow) 
+                                  else if LinkInfo.isPedTrafficLight == true then 
+                                     gw.wPolyline #(thepos,mpos) true rgb:#(orange ,orange ) 
+                                  else 
+                                     gw.wPolyline #(thepos,mpos) true rgb:#(blue,blue) 
+                                
                                 append linkedObjs MyObj
                             )
                         )   

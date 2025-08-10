@@ -1,7 +1,16 @@
-global spt_nodes_specialList = 
+--global spt_nodes_specialList = 
 
-plugin helper GTA_PathNode
-name:"SA Path Node"
+struct LinkInfo
+(
+	Node,
+	NaviNode,
+	isRoadcross = 0,
+	isPedTrafficLight = 0
+)
+
+
+plugin helper GTA_VehiclePathNode
+name:"SA Vehicle PathNode"
 classID:#(0x4683fc7, 0x2854d855)
 extends:Point 
 category:"GTA Path"
@@ -13,25 +22,42 @@ replaceUI:true
 	fn SetLink obj = 
 	(
 	
-		if (obj != undefined and classof obj == GTA_PathNode) then 
+		if (obj != undefined and classof obj == GTA_VehiclePathNode) then 
 		(
 			selfnode = (refs.dependentnodes this)[1]
-			IsNew = appendIfUnique  LinkList obj
-			--if IsNew do obj.SetLink selfnode
-			appendIfUnique  obj.LinkList selfnode 
+			islinked = false
+			for alinked in LinkList do 
+			(
+				if alinked.Node == obj do islinked == true
+			)
+
+			if  islinked == false do 
+			(
+				appendIfUnique LinkList (LinkInfo Node:obj NaviNode:undefined)
+				appendIfUnique obj.LinkList (LinkInfo Node:selfnode NaviNode:undefined)
+				--obj.SetLink selfnode
+			)
 		)
 	)
 
 	fn Delink obj = 
 	(
-		if (obj != undefined and classof obj == GTA_PathNode) then 
+		if (obj != undefined and classof obj == GTA_VehiclePathNode) then 
 		(
-			idx = findItem LinkList obj
 			selfnode = (refs.dependentnodes this)[1]
-			if idx do 
+			islinked = false
+			for alinked in LinkList do 
 			(
-				deleteItem LinkList idx
-				obj.Delink selfnode
+				if alinked.Node == obj do 
+				(
+					islinked == true
+					idx = findItem LinkList alinked
+					if idx do 
+					(
+						deleteItem LinkList idx 
+						obj.Delink selfnode
+					)
+				)
 			)
 		)
 	)
@@ -98,18 +124,25 @@ replaceUI:true
 		(
 			selfnode = (refs.dependentnodes this)[1]
 
-			if DoConnecttoPrev == true and (objects as array).count > 1 do 
+			if DoConnecttoPrev == 1 and (objects as array).count > 1 then 
 			(
+				LinkList = #()
 				thecount = (objects as array).count
 				LastObj =	 (objects as array)[thecount-1]
 				if LastObj != undefined do SetLink LastObj
-				
+			)
+			else 
+			(
+				LinkList = #()
 			)
 		)
 
 		on deleted do
 		(
-			for MyLink in LinkList do Delink MyLink
+			for MyLink in LinkList do 
+			(
+				Delink MyLink.Node
+			)
 
 		)
 	
