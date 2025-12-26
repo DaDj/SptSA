@@ -67,11 +67,8 @@ Bits  Description
 12    Not Highway
 13    Is Highway
 14-15 Unused
-16-19 Spawn Probability
-20    Road Block
-21    Parking
-22    Unused
-23    Road Block
+16-19 Spawn Probability  (0-15)
+20-23 Special Flag   "1 - PARKING_PARALLEL", "2 - PARKING_PERPENDICULAR", "3 - VALET", "4 - NIGHTCLUB", "5 - DELIVERIES", "6 - VALET_UNLOAD", "7 - NIGHTCLUB_UNLOAD", "8 - DRIVE_THROUGH", "9 - DRIVE_THROUGH_WINDOW", "10 - DELIVERIES_UNLOAD"
 24-31 Unused
 ```
 
